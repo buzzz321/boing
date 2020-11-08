@@ -143,6 +143,7 @@ int main() {
   Mesh mesh;
 
   WaveFrontReader reader("../ball.obj");
+  // WaveFrontReader reader("../cylinder.obj");
 
   reader.readVertices(mesh);
   unsigned int VAO;
@@ -159,9 +160,8 @@ int main() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               mesh.indicies.size() * sizeof(uint32_t), &mesh.indicies[0],
-               GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indicies.size() * sizeof(uint32_t),
+               &mesh.indicies[0], GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
   glBindVertexArray(0);
@@ -199,6 +199,9 @@ int main() {
     glm::mat4 model = glm::mat4(1.0f);
 
     model = glm::translate(model, glm::vec3(800.0f, 400.0f, 200.0f));
+    model =
+        glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
     model = glm::scale(model, glm::vec3(80.0, 80.0, 1.0));
 
     //    auto obj = model * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);

@@ -9,6 +9,7 @@ WaveFrontReader::WaveFrontReader(std::string filename) : m_filename(filename) {}
 void WaveFrontReader::readVertices(Mesh &obj) {
   std::ifstream myfile(m_filename);
   std::string line;
+  uint32_t debug_index{0};
 
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
@@ -27,6 +28,7 @@ void WaveFrontReader::readVertices(Mesh &obj) {
         auto startpos = currPos;
         char separator = '/'; // first we run utill we get a / then we switch to
                               // space to skip rest of numbers
+
         while (currPos < line.size()) {
           if (line[currPos] == separator) {
             if (separator == ' ') {
@@ -37,8 +39,15 @@ void WaveFrontReader::readVertices(Mesh &obj) {
             std::stringstream conv{line.substr(startpos, (currPos - startpos))};
             uint32_t face;
             conv >> face;
-            std::cout << " face index " << face << std::endl;
-            obj.indicies.push_back(face);
+            // std::cout << " face index " << face << std::endl;
+            obj.indicies.push_back(face - 1);
+            debug_index++;
+            if ((debug_index % 3) == 0) {
+              std::cout << "f " << obj.indicies[debug_index - 3] + 1 << "// "
+                        << obj.indicies[debug_index - 2] + 1 << "// "
+                        << obj.indicies[debug_index - 1] + 1 << "// "
+                        << std::endl;
+            }
             startpos = currPos + 1;
             separator = ' '; // skip until next space
           }
@@ -46,6 +55,8 @@ void WaveFrontReader::readVertices(Mesh &obj) {
         }
       }
     }
+    obj.indicies.shrink_to_fit();
+    obj.vertices.shrink_to_fit();
     myfile.close();
   } else
     std::cout << "Unable to open file";
