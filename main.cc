@@ -10,7 +10,7 @@
 constexpr int32_t SCREEN_WIDTH = 1600;
 constexpr int32_t SCREEN_HEIGHT = 1100;
 constexpr float fov = glm::radians(90.0f);
-constexpr float LED_FLOOR = 60.0f;
+// constexpr float LED_FLOOR = 60.0f;
 
 constexpr auto vertexShaderSource = R"(
 #version 330 core
@@ -142,8 +142,8 @@ int main() {
   }
   Mesh mesh;
 
-  WaveFrontReader reader("../ball.obj");
-  // WaveFrontReader reader("../cylinder.obj");
+  // WaveFrontReader reader("../ball.obj");
+  WaveFrontReader reader("../cylinder.obj");
 
   reader.readVertices(mesh);
   unsigned int VAO;
@@ -197,12 +197,11 @@ int main() {
     glBindVertexArray(VAO);
 
     glm::mat4 model = glm::mat4(1.0f);
-
     model = glm::translate(model, glm::vec3(800.0f, 400.0f, 200.0f));
     model =
-        glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
-    model = glm::scale(model, glm::vec3(80.0, 80.0, 1.0));
+    model = glm::scale(model, glm::vec3(80.0, 80.0, 80.0));
 
     //    auto obj = model * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     //    std::cout << obj.x << " " << obj.y << " " << obj.z << std::endl;

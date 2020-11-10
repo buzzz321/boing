@@ -28,9 +28,9 @@ if(WIN32)
 else()
   find_package(glfw3 3.3 REQUIRED)
   
-if(NOT GLM_FOUND)
-        message(Error "GLM not found")
-endif(NOT GLM_FOUND)
+  #if(NOT GLM_FOUND)
+  #       message(Error "GLM not found")
+  #endif(NOT GLM_FOUND)
 endif()
 
 set (SRCS
