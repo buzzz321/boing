@@ -21,29 +21,34 @@ void WaveFrontReader::readVertices(Mesh &obj) {
         conv >> x >> y >> z;
         std::cout << " x " << x << " y " << y << " z " << z << std::endl;
         obj.vertices.push_back(glm::vec3(x, y, z));
+        continue;
       }
       vpos = line.find("f ");
       if (vpos == 0) {
         // f 1/2/3 1/2/3 13/1/2
         // f 11/108/34 13/109/34 7/106/34
-        uint64_t currPos = 1;
-        auto startpos = currPos;
-        char separator = '/'; // first we run utill we get a / then we switch to
-                              // space to skip rest of numbers
-
         std::istringstream splitter{line.substr(2)};
+        std::cout << line << std::endl;
         std::string face;
-        uint32_t index;
-        // Mesh obj2;
+        std::string face_index;
+        uint64_t index;
         while (std::getline(splitter, face, ' ')) {
-          std::istringstream splitter{face};
-          splitter >> index;
+          std::cout << face << std::endl;
+          auto start_pos = face.find('/');
+          index = std::stoul(face.substr(0, start_pos), nullptr);
           obj.indicies.push_back(index - 1);
-          splitter >> index;
-          obj.texture_indicies.push_back(index - 1);
-          splitter >> index;
-          obj.normal_indicies.push_back(index - 1);
-
+          // std::cout << "start_pos" << start_pos << std::endl;
+          auto end_pos = face.find('/', start_pos + 1);
+          // std::cout << "end_pos" << end_pos << std::endl;
+          if (start_pos != end_pos - 1) {
+            index = std::stoul(
+                face.substr(start_pos + 1, end_pos - (start_pos + 1)), nullptr);
+            obj.texture_indicies.push_back(index - 1);
+          }
+          if (start_pos != end_pos - 1) {
+            index = std::stoul(face.substr(end_pos + 1), nullptr);
+            obj.normal_indicies.push_back(index - 1);
+          }
           std::cout << "f " << obj.indicies.back() + 1 << "/"
                     << obj.texture_indicies.back() + 1 << "/"
                     << obj.normal_indicies.back() + 1 << std::endl;
