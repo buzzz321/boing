@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 WaveFrontReader::WaveFrontReader(std::string filename) : m_filename(filename) {}
 
@@ -24,34 +25,28 @@ void WaveFrontReader::readVertices(Mesh &obj) {
       vpos = line.find("f ");
       if (vpos == 0) {
         // f 1/2/3 1/2/3 13/1/2
+        // f 11/108/34 13/109/34 7/106/34
         uint64_t currPos = 1;
         auto startpos = currPos;
         char separator = '/'; // first we run utill we get a / then we switch to
                               // space to skip rest of numbers
 
-        while (currPos < line.size()) {
-          if (line[currPos] == separator) {
-            if (separator == ' ') {
-              separator = '/'; // go back to search for slashes
-              startpos = currPos;
-              continue; // skip rest of loop
-            }
-            std::stringstream conv{line.substr(startpos, (currPos - startpos))};
-            uint32_t face;
-            conv >> face;
-            // std::cout << " face index " << face << std::endl;
-            obj.indicies.push_back(face - 1);
-            debug_index++;
-            if ((debug_index % 3) == 0) {
-              std::cout << "f " << obj.indicies[debug_index - 3] + 1 << "// "
-                        << obj.indicies[debug_index - 2] + 1 << "// "
-                        << obj.indicies[debug_index - 1] + 1 << "// "
-                        << std::endl;
-            }
-            startpos = currPos + 1;
-            separator = ' '; // skip until next space
-          }
-          currPos++;
+        std::istringstream splitter{line.substr(2)};
+        std::string face;
+        uint32_t index;
+        // Mesh obj2;
+        while (std::getline(splitter, face, ' ')) {
+          std::istringstream splitter{face};
+          splitter >> index;
+          obj.indicies.push_back(index - 1);
+          splitter >> index;
+          obj.texture_indicies.push_back(index - 1);
+          splitter >> index;
+          obj.normal_indicies.push_back(index - 1);
+
+          std::cout << "f " << obj.indicies.back() + 1 << "/"
+                    << obj.texture_indicies.back() + 1 << "/"
+                    << obj.normal_indicies.back() + 1 << std::endl;
         }
       }
     }

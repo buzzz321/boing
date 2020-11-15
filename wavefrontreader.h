@@ -9,6 +9,8 @@ typedef glm::vec3 Vertex;
 struct Mesh {
   std::vector<Vertex> vertices;
   std::vector<uint32_t> indicies;
+  std::vector<uint32_t> texture_indicies;
+  std::vector<uint32_t> normal_indicies;
 };
 
 class WaveFrontReader {
