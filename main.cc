@@ -7,6 +7,9 @@
 #include <iostream>
 #include <vector>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 constexpr int32_t SCREEN_WIDTH = 1600;
 constexpr int32_t SCREEN_HEIGHT = 1100;
 constexpr float fov = glm::radians(90.0f);
@@ -15,6 +18,10 @@ constexpr float fov = glm::radians(90.0f);
 constexpr auto vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out vec2 TexCoords;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -22,6 +29,7 @@ uniform mat4 projection;
 
 void main()
 {
+    TexCoords = aTexCoords;
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 )";
@@ -30,10 +38,15 @@ constexpr auto fragmentShaderSource = R"(
 #version 330 core
 out vec4 FragColor;
 
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
 void main()
 {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-} )";
+  FragColor = texture(texture_diffuse1, TexCoords);
+}
+)";
 
 unsigned int loadShaders(const char *shaderSource, GLenum shaderType) {
 
@@ -66,6 +79,30 @@ unsigned int makeShaderProgram(uint32_t vertexShader, uint32_t fragmentShader) {
   glDeleteShader(fragmentShader);
 
   return shaderProgram;
+}
+
+unsigned int loadImage(std::string filename) {
+  int width, height, nrChannels;
+
+  unsigned int texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  unsigned char *data =
+      stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  stbi_image_free(data);
+
+  return texture;
 }
 
 void error_callback(int error, const char *description) {
@@ -120,6 +157,8 @@ int main() {
     exit(1);
   }
 
+  stbi_set_flip_vertically_on_load(true);
+
   glfwSetErrorCallback(error_callback);
 
   GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "My Title",
@@ -142,8 +181,9 @@ int main() {
   }
   Mesh mesh;
 
-  // WaveFrontReader reader("../ball.obj");
-  WaveFrontReader reader("../cylinder.obj");
+  // WaveFrontReader reader("../cylinder.obj");
+  WaveFrontReader reader("../plane.obj");
+  // WaveFrontReader reader("../kub.obj");
 
   reader.readVertices(mesh);
   unsigned int VAO;
@@ -153,15 +193,35 @@ int main() {
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
 
+  /*
+   * Allt detta måste benas ut för denna röra är inte rätt..
+   */
   glBindVertexArray(VAO);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indicies.size() * sizeof(uint32_t),
+               &mesh.indicies[0], GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(Vertex),
+               &mesh.vertices[0], GL_STATIC_DRAW);
+
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(Vertex),
                &mesh.vertices[0], GL_STATIC_DRAW);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indicies.size() * sizeof(uint32_t),
-               &mesh.indicies[0], GL_STATIC_DRAW);
+  // vertex positions
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+  // vertex normals
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (void *)offsetof(Vertex, Normal));
+  // vertex texture coords
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (void *)offsetof(Vertex, TextureCoords));
 
   glEnableVertexAttribArray(0);
   glBindVertexArray(0);
@@ -174,6 +234,7 @@ int main() {
   glm::mat4 projection = glm::perspective(
       fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, zFar);
 
+  auto textureId = loadImage("../amiga-boing.png");
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
@@ -188,12 +249,17 @@ int main() {
 
     // 2. use our shader program when we want to render an object
     glUseProgram(shaderProgram);
+    glUniform1i(glGetUniformLocation(shaderProgram, "ourTexture"), 0);
 
     int modelprj = glGetUniformLocation(shaderProgram, "projection");
     glUniformMatrix4fv(modelprj, 1, GL_FALSE, glm::value_ptr(projection));
 
     camera(shaderProgram);
 
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(glGetUniformLocation(textureId, "texture_diffuse1"), 1);
+    // and finally bind the texture
+    glBindTexture(GL_TEXTURE_2D, 1);
     glBindVertexArray(VAO);
 
     glm::mat4 model = glm::mat4(1.0f);

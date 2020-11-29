@@ -4,7 +4,11 @@
 #include <string>
 #include <vector>
 
-typedef glm::vec3 Vertex;
+struct Vertex {
+  glm::vec3 Coord;
+  glm::vec3 Normal;
+  glm::vec2 TextureCoords;
+};
 
 struct Mesh {
   std::vector<Vertex> vertices;
