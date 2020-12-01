@@ -13,11 +13,11 @@ WaveFrontReader::WaveFrontReader(std::string filename) : m_filename(filename) {}
 void WaveFrontReader::readVertices(Mesh &obj) {
   std::ifstream myfile(m_filename);
   std::string line;
-  uint64_t vertexIndex{0};
+  uint32_t vertexIndex{0};
   std::vector<glm::vec3> vertices;
   std::vector<glm::vec2> textureCoords;
   std::vector<glm::vec3> normals;
-  std::unordered_map<uint64_t, uint64_t> faces;
+  std::unordered_map<uint64_t, uint32_t> faces;
 
   if (myfile.is_open()) {
     while (getline(myfile, line)) {

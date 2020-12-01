@@ -37,6 +37,9 @@ CMakeCache.txt
 
 CMakeFiles/**
 build/
+build-vs/
+lib/
+.vscode/
 build-release/
 build-profile/
 release/

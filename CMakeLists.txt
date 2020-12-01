@@ -22,9 +22,18 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     
 endif()
 
-if(WIN32)
-	#find_package(sdl2 CONFIG REQUIRED)
-	#find_package(sdl2-image CONFIG REQUIRED)
+if(WIN32)    
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{HOME}/source/repos/vcpkg/scripts/buildsystems/vcpkg.cmake")
+    #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
+    #"${CMAKE_SOURCE_DIR}/lib/glfw-3.2.2")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/lib/glfw-3.3.2")
+    add_subdirectory("${CMAKE_SOURCE_DIR}/lib/glm")
+
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    #find_package(glm CONFIG REQUIRED)
+    #find_package(glfw3 3.3.2 REQUIRED)
 else()
   find_package(glfw3 3.3 REQUIRED)
   
@@ -36,13 +45,12 @@ endif()
 set (SRCS
     main.cc
     glad.c
-    wavefrontreader.cc
-)
+    wavefrontreader.cc)
 
 add_executable(${CMAKE_PROJECT_NAME} ${SRCS})
 
 if(WIN32)
-	#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2::SDL2_image)
+	target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw glm)
 else()
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw dl m)
 endif()

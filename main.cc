@@ -6,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -128,7 +130,7 @@ void processInput(GLFWwindow *window) {
 void camera(uint32_t shaderId) {
   glm::mat4 view = glm::mat4(1.0f);
 
-  float zFar = (SCREEN_WIDTH / 2.0f) / tanf64(fov / 2.0f); // was 90.0f
+  float zFar = (SCREEN_WIDTH / 2.0f) / tanf(fov / 2.0f); // was 90.0f
   glm::vec3 cameraPos =
       glm::vec3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, zFar);
   glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -149,7 +151,7 @@ int main() {
   float deltaTime = 0.0f; // Time between current frame and last frame
   float lastFrame = 0.0f; // Time of last frame
 
-  srand(time(NULL));
+  srand((unsigned int)time(NULL));
 
   if (!glfwInit()) {
     // Initialization failed
@@ -181,8 +183,8 @@ int main() {
   }
   Mesh mesh;
 
-  // WaveFrontReader reader("../cylinder.obj");
-  WaveFrontReader reader("../plane.obj");
+  WaveFrontReader reader("../cylinder.obj");
+  //WaveFrontReader reader("../plane.obj");
   // WaveFrontReader reader("../kub.obj");
 
   reader.readVertices(mesh);
@@ -230,14 +232,14 @@ int main() {
   auto fragmentShader = loadShaders(fragmentShaderSource, GL_FRAGMENT_SHADER);
   auto shaderProgram = makeShaderProgram(vertexShader, fragmentShader);
 
-  float zFar = (SCREEN_WIDTH / 2.0) / tanf64(fov / 2.0f) + 10.0f; // 100.0f
+  float zFar = (SCREEN_WIDTH / 2.0f) / tanf(fov / 2.0f) + 10.0f; // 100.0f
   glm::mat4 projection = glm::perspective(
       fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, zFar);
 
   auto textureId = loadImage("../amiga-boing.png");
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   while (!glfwWindowShouldClose(window)) {
-    float currentFrame = glfwGetTime();
+    float currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
@@ -275,7 +277,7 @@ int main() {
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-    glDrawElements(GL_TRIANGLES, mesh.indicies.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh.indicies.size(), GL_UNSIGNED_INT, (GLsizei)0);
     glBindVertexArray(0);
 
     glfwSwapBuffers(window);
