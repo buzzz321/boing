@@ -203,7 +203,7 @@ int main() {
      */
     glBindVertexArray(VAO);
 
-    glDrawElements(GL_TRIANGLES, mesh.indicies.size(), GL_UNSIGNED_INT, (void*)0);
+    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                  mesh.indicies.size() * sizeof(uint32_t), &mesh.indicies[0],
