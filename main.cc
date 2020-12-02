@@ -102,6 +102,9 @@ unsigned int loadImage(std::string filename) {
                  GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
   }
+  else {
+      std::cout << "cant find texture name " << filename << std::endl;
+  }
   stbi_image_free(data);
 
   return texture;
@@ -277,7 +280,7 @@ int main() {
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-    glDrawElements(GL_TRIANGLES, mesh.indicies.size(), GL_UNSIGNED_INT, (GLsizei)0);
+    glDrawElements(GL_TRIANGLES, mesh.indicies.size(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
 
     glfwSwapBuffers(window);

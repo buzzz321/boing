@@ -48,3 +48,4 @@ release/
 .ccls-cache/
 .cmake/
 *.ninja*
+KHR/khrplatform.h
