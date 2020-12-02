@@ -98,7 +98,7 @@ unsigned int loadImage(std::string filename) {
   unsigned char *data =
       stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
   if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
   }
@@ -242,7 +242,7 @@ int main() {
         fov, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, zFar);
 
     auto textureId = loadImage("../amiga-boing.png");
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+   //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
