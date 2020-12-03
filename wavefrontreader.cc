@@ -36,7 +36,7 @@ void WaveFrontReader::readVertices(Mesh &obj) {
         float x, y;
         conv >> x >> y;
         std::cout << "vt x " << x << " y " << y << std::endl;
-        textureCoords.push_back(glm::vec2(x, 1.0f - y));
+        textureCoords.push_back(glm::vec2(x, -y));
         continue;
       }
       vpos = line.find("vn ");
@@ -98,9 +98,6 @@ void WaveFrontReader::readVertices(Mesh &obj) {
     for (const auto &index : obj.indicies) {
       std::cout << "index " << index << std::endl;
     }
-    //    for (auto pair : faces) {
-    //      std::cout << " faceindex " << pair.second << std::endl;
-    //    }
 
     obj.indicies.shrink_to_fit();
     obj.vertices.shrink_to_fit();
