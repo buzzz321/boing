@@ -189,13 +189,13 @@ int main() {
   glDepthFunc(GL_LESS);
 
   // Cull triangles which normal is not towards the camera
-  glEnable(GL_CULL_FACE);
+  (GL_CULL_FACE);
 
   Mesh mesh;
 
-  // WaveFrontReader reader("../cylinder.obj");
+  WaveFrontReader reader("../cylinder.obj");
   // WaveFrontReader reader("../plane.obj");
-  WaveFrontReader reader("../kub.obj");
+  // WaveFrontReader reader("../kub.obj");
 
   reader.readVertices(mesh);
   unsigned int VAO;
@@ -205,9 +205,6 @@ int main() {
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
 
-  /*
-   * Allt detta måste benas ut för denna röra är inte rätt..
-   */
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
